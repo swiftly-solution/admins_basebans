@@ -4,7 +4,16 @@ AddEventHandler("OnPluginStart", function(event)
 
    	db:Query("CREATE TABLE `"..config:Fetch("admins.tablenames.bans").."` (`id` INT NOT NULL AUTO_INCREMENT , `player_name` TEXT NOT NULL , `player_steamid` TEXT NOT NULL , `player_ip` TEXT NULL DEFAULT NULL , `type` INT NOT NULL , `expiretime` INT NOT NULL , `length` INT NOT NULL , `reason` TEXT NOT NULL , `admin_name` TEXT NOT NULL , `admin_steamid` TEXT NOT NULL , `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , `serverid` INT NOT NULL, PRIMARY KEY (`id`)) ENGINE = InnoDB;")
 
+    GenerateMenu()
 	return EventResult.Continue 
+end)
+
+AddEventHandler("OnAllPluginsLoaded", function(event)
+    if GetPluginState("admins") == PluginState_t.Started then
+        exports["admins"]:RegisterMenuCategory("admins.adminmenu.bans.title", "admin_bans", "d")
+    end
+
+    return EventResult.Continue
 end)
 
 AddEventHandler("OnPlayerConnectFull", function(event)
