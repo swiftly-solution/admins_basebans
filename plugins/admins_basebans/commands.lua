@@ -1,6 +1,3 @@
--- unban
--- unbanip
-
 commands:Register("unban", function(playerid, args, argc, silent, prefix)
     if playerid ~= -1 then
         local player = GetPlayer(playerid)
@@ -100,14 +97,15 @@ commands:Register("ban", function(playerid, args, argc, silent, prefix)
         PerformBan(tostring(targetPlayer:GetSteamID()), targetPlayer:GetIPAddress(),
             targetPlayer:CBasePlayerController().PlayerName, admin and tostring(admin:GetSteamID()) or "0",
             admin and admin:CBasePlayerController().PlayerName or "CONSOLE", time * 60, reason, BanType.SteamID)
-        targetPlayer:Drop(DisconnectReason.Kicked)
+
         ReplyToCommand(playerid,
             config:Fetch("admins.prefix"),
             FetchTranslation("admins.ban.message"):gsub("{PLAYER_NAME}",
                 targetPlayer:CBasePlayerController().PlayerName):gsub("{ADMIN_NAME}",
                 admin and admin:CBasePlayerController().PlayerName or "CONSOLE"):gsub("{TIME}", ComputePrettyTime(time))
-            :gsub(
-                "{REASON}", reason))
+            :gsub("{REASON}", reason))
+
+        targetPlayer:Drop(DisconnectReason.Kicked)
     end
 end)
 
@@ -156,14 +154,15 @@ commands:Register("banip", function(playerid, args, argc, silent, prefix)
         PerformBan(tostring(targetPlayer:GetSteamID()), targetPlayer:GetIPAddress(),
             targetPlayer:CBasePlayerController().PlayerName, admin and tostring(admin:GetSteamID()) or "0",
             admin and targetPlayer:CBasePlayerController().PlayerName or "CONSOLE", time * 60, reason, BanType.IP)
-        targetPlayer:Drop(DisconnectReason.Kicked)
+
         ReplyToCommand(playerid,
             config:Fetch("admins.prefix"),
             FetchTranslation("admins.ban.message"):gsub("{PLAYER_NAME}",
                 targetPlayer:CBasePlayerController().PlayerName):gsub("{ADMIN_NAME}",
                 admin and admin:CBasePlayerController().PlayerName or "CONSOLE"):gsub("{TIME}", ComputePrettyTime(time))
-            :gsub(
-                "{REASON}", reason))
+            :gsub("{REASON}", reason))
+
+        targetPlayer:Drop(DisconnectReason.Kicked)
     end
 end)
 
@@ -194,19 +193,19 @@ commands:Register("kick", function(playerid, args, argc, silent, prefix)
         return ReplyToCommand(playerid, config:Fetch("admins.prefix"), FetchTranslation("admins.invalid_player"))
     end
 
-    local admin = nil
+    local admin = "CONSOLE"
     if playerid ~= -1 then
-        admin = GetPlayer(playerid)
+        admin = GetPlayer(playerid):CBasePlayerController().PlayerName
     end
 
     for i = 1, #players do
         local targetPlayer = players[i]
-        targetPlayer:Drop(DisconnectReason.Kicked)
         ReplyToCommand(playerid,
             config:Fetch("admins.prefix"),
-            FetchTranslation("admins.kick.message"):gsub("{ADMIN_NAME}",
-                admin and admin:CBasePlayerController().PlayerName or "CONSOLE"):gsub("{PLAYER_NAME}",
+            FetchTranslation("admins.kick.message"):gsub("{ADMIN_NAME}", admin):gsub("{PLAYER_NAME}",
                 targetPlayer:CBasePlayerController().PlayerName):gsub("{REASON}", reason))
+
+        targetPlayer:Drop(DisconnectReason.Kicked)
     end
 end)
 
@@ -391,7 +390,6 @@ commands:Register("addbanmenu_confirmbox", function(playerid, args, argc, silent
             player:CBasePlayerController().PlayerName,
             config:Fetch("admin_bans.times[" .. AddBanMenuSelectedTime[playerid] .. "]"),
             AddBanMenuSelectedReason[playerid], BanType.SteamID)
-        pl:Drop(DisconnectReason.Kicked)
 
         ReplyToCommand(playerid,
             config:Fetch("admins.prefix"),
@@ -400,5 +398,7 @@ commands:Register("addbanmenu_confirmbox", function(playerid, args, argc, silent
                 player and player:CBasePlayerController().PlayerName or "CONSOLE"):gsub("{TIME}", ComputePrettyTime(time))
             :gsub(
                 "{REASON}", AddBanMenuSelectedReason[playerid]))
+
+        pl:Drop(DisconnectReason.Kicked)
     end
 end)
