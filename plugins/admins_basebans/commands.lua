@@ -94,6 +94,8 @@ commands:Register("ban", function(playerid, args, argc, silent, prefix)
 
     for i = 1, #players do
         local targetPlayer = players[i]
+        if not targetPlayer:CBasePlayerController():IsValid() then return end
+        if not admin:CBasePlayerController():IsValid() then return end
         PerformBan(tostring(targetPlayer:GetSteamID()), targetPlayer:GetIPAddress(),
             targetPlayer:CBasePlayerController().PlayerName, admin and tostring(admin:GetSteamID()) or "0",
             admin and admin:CBasePlayerController().PlayerName or "CONSOLE", time * 60, reason, BanType.SteamID)
@@ -102,7 +104,7 @@ commands:Register("ban", function(playerid, args, argc, silent, prefix)
             config:Fetch("admins.prefix"),
             FetchTranslation("admins.ban.message"):gsub("{PLAYER_NAME}",
                 targetPlayer:CBasePlayerController().PlayerName):gsub("{ADMIN_NAME}",
-                admin and admin:CBasePlayerController().PlayerName or "CONSOLE"):gsub("{TIME}", ComputePrettyTime(time))
+                admin and admin:CBasePlayerController().PlayerName or "CONSOLE"):gsub("{TIME}", ComputePrettyTime(time * 60))
             :gsub("{REASON}", reason))
 
         targetPlayer:Drop(DisconnectReason.Kicked)
@@ -151,6 +153,8 @@ commands:Register("banip", function(playerid, args, argc, silent, prefix)
 
     for i = 1, #players do
         local targetPlayer = players[i]
+        if not targetPlayer:CBasePlayerController():IsValid() then return end
+        if not admin:CBasePlayerController():IsValid() then return end
         PerformBan(tostring(targetPlayer:GetSteamID()), targetPlayer:GetIPAddress(),
             targetPlayer:CBasePlayerController().PlayerName, admin and tostring(admin:GetSteamID()) or "0",
             admin and targetPlayer:CBasePlayerController().PlayerName or "CONSOLE", time * 60, reason, BanType.IP)
@@ -200,6 +204,7 @@ commands:Register("kick", function(playerid, args, argc, silent, prefix)
 
     for i = 1, #players do
         local targetPlayer = players[i]
+        if not targetPlayer:CBasePlayerController():IsValid() then return end
         ReplyToCommand(playerid,
             config:Fetch("admins.prefix"),
             FetchTranslation("admins.kick.message"):gsub("{ADMIN_NAME}", admin):gsub("{PLAYER_NAME}",
@@ -233,7 +238,9 @@ commands:Register("addbanmenu", function(playerid, args, argc, silent, prefix)
         local pl = GetPlayer(i)
         if pl then
             if not pl:IsFakeClient() then
-                table.insert(players, { pl:CBasePlayerController().PlayerName, "sw_addbanmenu_selectplayer " .. i })
+                if pl:CBasePlayerController():IsValid() then
+                    table.insert(players, { pl:CBasePlayerController().PlayerName, "sw_addbanmenu_selectplayer " .. i })
+                end
             end
         end
     end
@@ -272,7 +279,7 @@ commands:Register("addbanmenu_selectplayer", function(playerid, args, argc, sile
 
     for i = 0, config:FetchArraySize("admin_bans.reasons") - 1, 1 do
         table.insert(options,
-            { config:Fetch("admin_bans.reasons[" .. i .. "]"), "sw_addsilencemenu_selectreason \"" ..
+            { config:Fetch("admin_bans.reasons[" .. i .. "]"), "sw_addbanmenu_selectreason \"" ..
             config:Fetch("admin_bans.reasons[" .. i .. "]") .. "\"" })
     end
 
@@ -386,6 +393,8 @@ commands:Register("addbanmenu_confirmbox", function(playerid, args, argc, silent
             return
         end
 
+        if not pl:CBasePlayerController():IsValid() then return end
+        if not player:CBasePlayerController():IsValid() then return end
         PerformBan(pl:GetSteamID(), pl:GetIPAddress(), pl:CBasePlayerController().PlayerName, player:GetSteamID(),
             player:CBasePlayerController().PlayerName,
             config:Fetch("admin_bans.times[" .. AddBanMenuSelectedTime[playerid] .. "]"),
@@ -395,7 +404,7 @@ commands:Register("addbanmenu_confirmbox", function(playerid, args, argc, silent
             config:Fetch("admins.prefix"),
             FetchTranslation("admins.ban.message"):gsub("{PLAYER_NAME}",
                 pl:CBasePlayerController().PlayerName):gsub("{ADMIN_NAME}",
-                player and player:CBasePlayerController().PlayerName or "CONSOLE"):gsub("{TIME}", ComputePrettyTime(time))
+                player and player:CBasePlayerController().PlayerName or "CONSOLE"):gsub("{TIME}", ComputePrettyTime(time * 60))
             :gsub(
                 "{REASON}", AddBanMenuSelectedReason[playerid]))
 
