@@ -106,7 +106,7 @@ commands:Register("ban", function(playerid, args, argc, silent, prefix)
                 admin and admin:CBasePlayerController().PlayerName or "CONSOLE"):gsub("{TIME}", ComputePrettyTime(time * 60))
             :gsub("{REASON}", reason))
 
-        targetPlayer:SendMsg(MessageType.Console, FetchTranslation("admins.ban.playermessage"):gsub("{PREFIX}", config:Fetch("admins.prefix")):gsub("{TIME}", ComputePrettyTime(banRow.length)):gsub("{TIME_LEFT}", ComputePrettyTime(banRow.expiretime - os.time())):gsub("{REASON}", banRow.reason):gsub("{ADMIN_NAME}", banRow.admin_name or "CONSOLE"):gsub("{ADMIN_STEAMID}", banRow.admin_steamid or "0"))
+        targetPlayer:SendMsg(MessageType.Console, FetchTranslation("admins.ban.playermessage"):gsub("{PREFIX}", config:Fetch("admins.prefix")):gsub("{TIME}", ComputePrettyTime(time * 60)):gsub("{TIME_LEFT}", ComputePrettyTime(time * 60)):gsub("{REASON}", reason):gsub("{ADMIN_NAME}", admin and admin:CBasePlayerController().PlayerName or "CONSOLE"):gsub("{ADMIN_STEAMID}", admin and tostring(admin:GetSteamID()) or "0"))
         SetTimeout(500, function()
             targetPlayer:Drop(DisconnectReason.Kicked)
         end)
@@ -167,7 +167,10 @@ commands:Register("banip", function(playerid, args, argc, silent, prefix)
                 admin and admin:CBasePlayerController().PlayerName or "CONSOLE"):gsub("{TIME}", ComputePrettyTime(time * 60))
             :gsub("{REASON}", reason))
 
-        targetPlayer:Drop(DisconnectReason.Kicked)
+        targetPlayer:SendMsg(MessageType.Console, FetchTranslation("admins.ban.playermessage"):gsub("{PREFIX}", config:Fetch("admins.prefix")):gsub("{TIME}", ComputePrettyTime(time * 60)):gsub("{TIME_LEFT}", ComputePrettyTime(time * 60)):gsub("{REASON}", reason):gsub("{ADMIN_NAME}", admin and admin:CBasePlayerController().PlayerName or "CONSOLE"):gsub("{ADMIN_STEAMID}", admin and tostring(admin:GetSteamID()) or "0"))
+        SetTimeout(500, function()
+            targetPlayer:Drop(DisconnectReason.Kicked)
+        end)
     end
 end)
 
