@@ -3,11 +3,18 @@ function PerformBan(player_steamid, player_ip, player_name, admin_steamid, admin
     player_steamid = tostring(player_steamid)
 
     db:QueryParams(
-        "insert into @tablename (player_name, player_steamid, player_ip, type, expiretime, length, reason, admin_name, admin_steamid) values ('@name', '@steamid', "..(player_ip and "'"..db:EscapeString(player_ip).."'" or "NULL")..", @btype, @seconds, @duration, '@reason', '@admin_name', '@admin_steamid')",
-        { tablename = config:Fetch("admins.tablenames.bans"), name = player_name, steamid = player_steamid, btype = btype, seconds = (seconds == 0 and (0) or (os.time() + seconds)), duration = seconds, reason = reason, admin_name = admin_name, admin_steamid = admin_steamid }
-    )
+        "select * from @tablename where (player_steamid = '@steamid' or player_ip = '@ipaddr') and (expiretime = 0 OR expiretime - UNIX_TIMESTAMP() > 0) order by id",
+        { tablename = config:Fetch("admins.tablenames.bans"), steamid = player_steamid, ipaddr = player_ip }, function(err, result)
+        if #err > 0 then return print("ERROR: "..err) end
+        if #result ~= 0 then return end
 
-    logger:Write(LogType_t.Common, string.format("'%s' (%s) banned '%s' (%s). Time: %s | Reason: %s", admin_name, tostring(admin_steamid), player_name, player_ip or player_steamid, ComputePrettyTime(seconds), reason))
+        db:QueryParams(
+            "insert into @tablename (player_name, player_steamid, player_ip, type, expiretime, length, reason, admin_name, admin_steamid) values ('@name', '@steamid', "..(player_ip and "'"..db:EscapeString(player_ip).."'" or "NULL")..", @btype, @seconds, @duration, '@reason', '@admin_name', '@admin_steamid')",
+            { tablename = config:Fetch("admins.tablenames.bans"), name = player_name, steamid = player_steamid, btype = btype, seconds = (seconds == 0 and (0) or (os.time() + seconds)), duration = seconds, reason = reason, admin_name = admin_name, admin_steamid = admin_steamid }
+        )
+
+        logger:Write(LogType_t.Common, string.format("'%s' (%s) banned '%s' (%s). Time: %s | Reason: %s", admin_name, tostring(admin_steamid), player_name, player_ip or player_steamid, ComputePrettyTime(seconds), reason))
+    end)
 end
 
 function PerformUnban(player_steamid, player_ip)
