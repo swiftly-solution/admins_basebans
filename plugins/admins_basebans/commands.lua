@@ -411,6 +411,8 @@ commands:Register("addbanmenu_confirmbox", function(playerid, args, argc, silent
             :gsub(
                 "{REASON}", AddBanMenuSelectedReason[playerid]))
 
+        player:HideMenu()
+
         pl:Drop(DisconnectReason.Kicked)
     end
 end)
