@@ -1,3 +1,5 @@
+local was_banned_over_here = {}
+
 function PerformBan(player_steamid, player_ip, player_name, admin_steamid, admin_name, seconds, reason, btype)
     if not db:IsConnected() then return end
     player_steamid = tostring(player_steamid)
@@ -7,6 +9,11 @@ function PerformBan(player_steamid, player_ip, player_name, admin_steamid, admin
         { tablename = config:Fetch("admins.tablenames.bans"), steamid = player_steamid, ipaddr = player_ip }, function(err, result)
         if #err > 0 then return print("ERROR: "..err) end
         if #result ~= 0 then return end
+        if was_banned_over_here[player_steamid] then return end
+        if was_banned_over_here[player_ip] then return end
+
+        was_banned_over_here[player_steamid] = true
+        was_banned_over_here[player_ip] = true
 
         db:QueryParams(
             "insert into @tablename (player_name, player_steamid, player_ip, type, expiretime, length, reason, admin_name, admin_steamid) values ('@name', '@steamid', "..(player_ip and "'"..db:EscapeString(player_ip).."'" or "NULL")..", @btype, @seconds, @duration, '@reason', '@admin_name', '@admin_steamid')",
@@ -34,5 +41,8 @@ function PerformUnban(player_steamid, player_ip)
                 logger:Write(LogType_t.Common, string.format("'%s' (%s) unbanned '%s' (%s).", banRow.admin_name, tostring(banRow.admin_steamid), banRow.player_name, banRow.type == BanType.IP and player_ip or player_steamid))
             end
         end
+
+        rawset(was_banned_over_here, player_ip, nil)
+        rawset(was_banned_over_here, player_steamid, nil)
     end)
 end
