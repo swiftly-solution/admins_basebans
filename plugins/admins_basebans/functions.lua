@@ -31,7 +31,11 @@ function PerformBan(player_steamid, player_ip, player_name, admin_steamid, admin
                 reason = reason,
                 admin_name = admin_name,
                 admin_steamid = admin_steamid,
-            }):Execute()
+            }):Execute(function (err, result)
+                if #err > 0 then
+                    print("Err: " .. err)
+                end
+            end)
 
             logger:Write(LogType_t.Common, string.format("'%s' (%s) banned '%s' (%s). Time: %s | Reason: %s", admin_name, tostring(admin_steamid), player_name, player_ip or player_steamid, ComputePrettyTime(seconds), reason))
         end)
@@ -56,6 +60,9 @@ function PerformUnban(player_steamid, player_ip)
                 end
             end
         end
+
+        was_banned_over_here[player_steamid] = nil
+        was_banned_over_here[player_ip] = nil
 
         rawset(was_banned_over_here, player_ip, nil)
         rawset(was_banned_over_here, player_steamid, nil)
