@@ -13,7 +13,7 @@ AddEventHandler("OnPluginStart", function(event)
         reason = "string|max:512",
         admin_name = "string|max:128",
         admin_steamid = "string|max:128",
-        date = "datetime"
+        date = "datetime|default:CURRENT_TIMESTAMP"
     }):Execute()
 
     GenerateMenu()
