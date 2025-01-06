@@ -29,6 +29,7 @@ AddEventHandler("OnAllPluginsLoaded", function(event)
 end)
 
 AddEventHandler("OnPlayerConnectFull", function(event)
+	if not db:IsConnected() then return print("WARNING: User cannot be checked, database is not connected.") end
 	local playerid = event:GetInt("userid")
 	local player = GetPlayer(playerid)
 	if not player then return end
