@@ -413,6 +413,9 @@ commands:Register("addbanmenu_confirmbox", function(playerid, args, argc, silent
 
         player:HideMenu()
 
-        pl:Drop(DisconnectReason.Kicked)
+        pl:SendMsg(MessageType.Console, FetchTranslation("admins.ban.playermessage"):gsub("{PREFIX}", config:Fetch("admins.prefix")):gsub("{TIME}", ComputePrettyTime(config:Fetch("admin_bans.times[" .. AddBanMenuSelectedTime[playerid] .. "]"))):gsub("{TIME_LEFT}", ComputePrettyTime(config:Fetch("admin_bans.times[" .. AddBanMenuSelectedTime[playerid] .. "]"))):gsub("{REASON}", AddBanMenuSelectedReason[playerid]):gsub("{ADMIN_NAME}", player:CBasePlayerController().PlayerName):gsub("{ADMIN_STEAMID}", tostring(player:GetSteamID())))
+        SetTimeout(500, function()
+            pl:Drop(DisconnectReason.Kicked)
+        end)
     end
 end)
