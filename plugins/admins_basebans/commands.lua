@@ -113,6 +113,55 @@ commands:Register("ban", function(playerid, args, argc, silent, prefix)
     end
 end)
 
+commands:Register("bano", function(playerid, args, argc, silent, prefix)
+    if playerid ~= -1 then
+        local player = GetPlayer(playerid)
+        if not player then return end
+
+        local hasAccess = exports["admins"]:HasFlags(playerid, "d")
+
+        if not hasAccess then
+            return ReplyToCommand(playerid, config:Fetch("admins.prefix"),
+                FetchTranslation("admins.no_permission"))
+        end
+    end
+
+    if argc < 3 then
+        return ReplyToCommand(playerid, config:Fetch("admins.prefix"),
+            string.format(FetchTranslation("admins.bano.syntax"), prefix))
+    end
+
+    local steamid = args[1]
+    local name = args[2]
+    local time = args[3]
+    table.remove(args, 1)
+    table.remove(args, 1)
+    table.remove(args, 1)
+    local reason = table.concat(args, " ")
+
+    time = tonumber(time)
+    if time < 0 or time > 525600 then
+        return ReplyToCommand(playerid, config:Fetch("admins.prefix"),
+            FetchTranslation("admins.invalid_time"):gsub("{MIN}", 1):gsub("{MAX}", 525600))
+    end
+
+    local admin = nil
+    if playerid ~= -1 then
+        admin = GetPlayer(playerid)
+    end
+
+   PerformBan(tostring(steamid), "127.0.0.1",
+       name, admin and tostring(admin:GetSteamID()) or "0",
+       admin and admin:CBasePlayerController().PlayerName or "CONSOLE", time * 60, reason, BanType.SteamID)
+
+   ReplyToCommand(playerid,
+       config:Fetch("admins.prefix"),
+       FetchTranslation("admins.ban.message"):gsub("{PLAYER_NAME}",
+           name):gsub("{ADMIN_NAME}",
+           admin and admin:CBasePlayerController().PlayerName or "CONSOLE"):gsub("{TIME}", ComputePrettyTime(time * 60))
+       :gsub("{REASON}", reason))
+end)
+
 commands:Register("banip", function(playerid, args, argc, silent, prefix)
     if playerid ~= -1 then
         local player = GetPlayer(playerid)
